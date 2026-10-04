@@ -1,0 +1,101 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>医数工作台 · 医院数据管理</title>
+  <meta name="description" content="面向医院数据团队的数据连接、系统生成与本地工作副本管理工作台。" />
+  <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='9' fill='%232f6fda'/%3E%3Cpath d='M10 9l12 14M22 9L10 23M8 16h16' stroke='white' stroke-width='3' stroke-linecap='round'/%3E%3C/svg%3E" />
+  <link rel="stylesheet" href="/live.css" />
+</head>
+<body>
+  <div class="app-shell">
+    <aside class="sidebar" aria-label="主导航">
+      <div class="brand">
+        <span class="brand-mark" aria-hidden="true"><span></span><span></span><span></span></span>
+        <div><strong>医数工作台</strong><small>Hospital Data Studio</small></div>
+      </div>
+
+      <div class="workspace-switcher">
+        <span class="workspace-label">当前工作区</span>
+        <div class="workspace-name"><span class="workspace-avatar">院</span><b>医院数据工作区</b><span class="workspace-chevron">⌄</span></div>
+      </div>
+
+      <div class="nav-section-label">工作区</div>
+      <nav class="nav">
+        <button class="nav-item active" data-view="connection"><span class="nav-icon">⌘</span><span class="nav-copy"><b>数据源</b><small>数据资产与本地副本</small></span></button>
+        <button class="nav-item" data-view="builder"><span class="nav-icon">✧</span><span class="nav-copy"><b>生成中心</b><small>从需求生成管理系统</small></span></button>
+        <button class="nav-item" data-view="apps"><span class="nav-icon">▦</span><span class="nav-copy"><b>系统目录</b><small>已保存的业务应用</small></span></button>
+      </nav>
+
+      <div class="sidebar-divider"></div>
+      <div class="sidebar-note"><span class="note-icon">i</span><div><b>本地写入策略</b><p>本地工作副本承接编辑操作，远端数据保持只读。</p></div></div>
+      <div class="side-foot"><div id="connectionDot" class="connection"><i></i><span>检查登录态中…</span></div><small>医数工作台 · v0.1.0</small></div>
+    </aside>
+
+    <main class="main">
+      <header class="topbar">
+        <div class="topbar-heading"><span class="crumb">医院数据平台</span><span class="crumb-separator">/</span><b id="pageTitle">数据源</b></div>
+        <div class="top-actions"><span class="environment-label"><i></i>数据服务</span><span id="externalPill" class="pill neutral">未连接</span><button id="accountButton" class="account">登录</button></div>
+      </header>
+
+      <section id="connection" class="view active">
+        <div class="section-intro">
+          <div><span class="eyebrow">DATA CONNECTION</span><h1>连接数据源</h1><p>从已授权的远端数据源选择业务表，并为后续生成建立稳定的数据绑定。</p></div>
+          <div class="intro-status"><span class="status-dot"></span><span id="connectionState" class="readonly-label">尚未连接</span></div>
+        </div>
+
+        <div class="section-toolbar"><span class="section-toolbar-title">数据资产</span><span class="section-toolbar-copy">已授权的数据源、表画像和本地副本</span><span class="section-toolbar-spacer"></span><span class="section-toolbar-meta">远端读取 · 本地写入</span></div>
+
+        <div id="loginNotice" class="notice hidden"><span class="notice-icon">!</span><div><b>需要连接线上服务</b><p>登录只在当前会话生效，密码不会保存到本地。</p></div><button id="noticeLogin" class="primary">登录线上服务</button></div>
+
+        <section class="binding-bar panel" aria-label="选择线上数据">
+          <div class="panel-kicker">数据绑定</div>
+          <label>数据源<select id="builderSource" aria-label="数据源"></select></label>
+          <label>数据表<select id="builderTable" aria-label="数据表"></select></label>
+          <button id="newApp" class="light">清除选择</button>
+          <span id="bindingHint" class="muted">登录后选择真实表</span>
+        </section>
+
+        <section id="mirrorStatusPanel" class="panel mirror-status-panel" aria-label="本地工作副本">
+          <div class="panel-head"><div><span class="eyebrow">LOCAL WORKING COPY</span><h2>本地工作副本</h2><p class="panel-subtitle">将远端表的可用数据保存到本地，生成的系统将在这里执行增删改查。</p></div><span id="mirrorStatusBadge" class="mirror-badge idle">尚未导入</span></div>
+          <div id="mirrorStatusText" class="mirror-status-text">先选择数据表，再导入一个本地副本。</div>
+          <div id="mirrorStats" class="mirror-stats"></div>
+          <div class="mirror-actions"><button id="importMirror" class="primary" disabled>导入本地副本</button><button id="refreshMirror" class="light">刷新状态</button><span id="mirrorImportProgress" class="muted"></span></div>
+        </section>
+
+        <div class="catalog-grid">
+          <section class="panel source-panel"><div class="panel-head"><div><span class="panel-kicker">SOURCE REGISTRY</span><h2>远端数据源</h2></div><span id="sourceCount" class="count"></span></div><div id="sources" class="source-list"><div class="skeleton"></div></div></section>
+          <section class="panel tables-panel"><div class="panel-head"><div><span class="panel-kicker">TABLE CATALOG</span><h2>数据表</h2><span id="catalogHint" class="muted">选择数据源</span></div><input id="catalogSearch" class="small-input" placeholder="搜索表名或说明" /></div><div id="catalogTables" class="catalog-tables"><div class="empty">还没有选择数据源</div></div></section>
+        </div>
+
+        <section id="tableDetail" class="panel table-detail hidden"><div class="panel-head"><div><span class="eyebrow">TABLE PROFILE</span><h2 id="detailName"></h2></div><div class="detail-actions"><button id="loadSample" class="light">查看脱敏样例</button><button id="importFromDetail" class="primary">导入本地副本</button></div></div><div id="detailMeta" class="detail-meta"></div><div id="columnsTable" class="table-wrap"></div><div class="next-step"><div class="next-step-copy"><b>下一步</b><span>导入副本后，去需求构建页创建一个长期可用的管理系统。</span></div><button class="primary" data-go="builder">前往需求构建</button></div></section>
+      </section>
+
+      <section id="builder" class="view">
+        <div class="hero"><div><span class="eyebrow">REQUIREMENT BUILDER</span><h1>描述需求，生成管理系统</h1><p>用业务语言说明你要管理什么，系统会基于已绑定的数据表生成页面定义。</p></div><div class="hero-note"><span class="panel-kicker">当前数据绑定</span><b id="builderConnectionSummary">请先选择一张远端数据表</b><small>生成结果会保存到系统目录</small></div></div>
+        <div class="binding-bar panel compact-binding"><div><span class="panel-kicker">生成所用数据表</span><b id="builderSelectedTable">尚未选择</b></div><button class="light" data-go="connection">更换数据表</button></div>
+        <div class="workspace-grid">
+          <section class="panel conversation"><div class="panel-head"><div><span class="eyebrow">REQUIREMENT</span><h2>描述你想管理的场景</h2><p class="panel-subtitle">说明业务对象、字段、筛选条件和操作范围。</p></div><span class="source-tag">只读远端 · 本地可写</span></div><div id="messages" class="messages"><div class="message agent">请描述要管理的业务场景。我会基于当前绑定的数据表生成页面定义，生成后可在系统目录中持续使用。</div></div><div class="prompt-hint"><span>可描述</span><b>字段展示</b><b>筛选条件</b><b>新增 / 编辑 / 删除</b></div><form id="generateForm" class="composer"><label for="prompt" class="composer-label">需求描述</label><textarea id="prompt" rows="3" placeholder="例如：用床位数据生成一个按病区筛选的管理页面，支持新增、编辑、删除和恢复"></textarea><div class="composer-foot"><small>生成阶段只读取远端元数据；数据操作在本地工作副本中持久化。</small><button class="primary" type="submit">生成系统 <span>↗</span></button></div></form></section>
+          <section class="panel evidence"><div class="panel-head"><div><span class="eyebrow">RUN STATUS</span><h2>生成状态</h2><p class="panel-subtitle">保留任务、Run 与来源绑定，方便追踪结果。</p></div><span id="jobStatus" class="status neutral">尚未开始</span></div><div id="jobEmpty" class="job-empty"><div class="empty-icon">◌</div><b>还没有生成任务</b><p>开始后会同步任务状态和上游运行编号。</p></div><button id="cancelJob" class="light hidden" type="button">取消生成</button><div id="jobDetails" class="hidden"><div class="progress"><div id="progressBar"></div></div><div id="jobMessage" class="job-message"></div><div id="jobMeta" class="job-meta"></div><div id="specCard" class="spec-card hidden"><div class="spec-title"><b id="specName"></b><span>页面定义</span></div><p id="specDescription"></p><div id="specChips" class="spec-chips"></div></div></div></section>
+        </div>
+      </section>
+
+      <section id="apps" class="view">
+        <div class="section-intro"><div><span class="eyebrow">SYSTEM CATALOG</span><h1>系统目录</h1><p>打开已生成的管理系统，查看版本、数据绑定和本地副本状态。</p></div><div class="intro-actions"><button id="newFromApps" class="primary">生成新系统</button><button id="refreshApps" class="light">刷新列表</button></div></div>
+        <div class="metrics-strip"><div class="metric-card"><span>已保存系统</span><b id="appMetric">—</b><small>可重复打开与继续修改</small></div><div class="metric-card"><span>可用数据源</span><b id="sourceMetric">—</b><small>当前账号的授权范围</small></div><div class="metric-card"><span>本地副本</span><b id="mirrorMetric">—</b><small>承接本地增删改查</small></div><div class="metric-card"><span>当前会话</span><b id="sessionMetric">未连接</b><small>线上服务连接状态</small></div></div>
+        <div class="catalog-toolbar"><div><span class="panel-kicker">SAVED SYSTEMS</span><b>已保存的管理系统</b></div><span class="muted">系统定义与数据绑定会持续保存</span></div>
+        <div id="appsList" class="apps-list"><div class="empty">正在加载…</div></div>
+        <section id="appDetail" class="panel app-detail hidden"><div class="panel-head"><div><span class="eyebrow">SYSTEM OVERVIEW</span><h2 id="restoredName"></h2><p id="restoredSummary" class="detail-summary"></p></div><button id="continueEditing" class="primary">继续修改需求</button></div><div id="restoredOverview" class="restored-overview"></div><div class="system-toolbar"><span id="restoredModeBadge" class="readonly-label">本地工作副本</span><span id="runtimeStatus" class="muted">正在检查本地副本状态…</span></div><details class="technical-details"><summary>查看技术详情（管理员）</summary><pre id="restoredSpec" class="json-view"></pre><div id="restoredMessages" class="restored-messages"></div></details></section>
+        <section id="samplePanel" class="panel sample-panel hidden system-screen"><div class="system-screen-head"><button id="backToSystems" class="light">← 返回系统目录</button><div class="system-screen-title"><span class="eyebrow">RUNNING SYSTEM</span><h2 id="sampleTitle">已生成系统</h2><p id="sampleSubtitle">数据来自本地工作副本</p></div><span class="readonly-label" id="systemSourceBadge">本地副本</span></div><div class="system-stats"><div><span>当前结果</span><b id="systemResultCount">—</b></div><div><span>数据来源</span><b id="systemSourceName">—</b></div><div><span>访问模式</span><b id="systemAccessMode">本地工作副本</b></div></div><div class="system-toolbar system-actions"><div class="sample-toolbar"><input id="sampleSearch" placeholder="搜索本地记录" /><span id="sampleMeta" class="muted"></span></div><div class="crud-actions"><button id="systemRefresh" class="light">刷新数据</button><button id="systemAdd" class="primary">＋ 新增记录</button><button id="systemImport" class="light">批量导入</button></div></div><div id="specFilters" class="spec-filters"></div><div id="systemNotice" class="system-notice">本地工作副本尚未导入。请返回“数据连接”选择数据表并导入。</div><div id="sampleTable" class="table-wrap"></div><div id="mirrorPagination" class="mirror-pagination hidden"><button id="mirrorPrev" class="light">上一页</button><span id="mirrorPageInfo" class="muted"></span><button id="mirrorNext" class="light">下一页</button></div></section>
+      </section>
+    </main>
+  </div>
+
+  <dialog id="loginDialog"><form id="loginForm"><div class="dialog-title"><div><span class="eyebrow">ONLINE SESSION</span><h2>连接线上服务</h2></div><button type="button" class="icon-button" id="closeLogin">×</button></div><p class="dialog-copy">使用线上账号建立当前浏览器会话。密码不会保存，令牌仅驻留在本地服务进程内。</p><label>用户名<input id="username" value="demo_admin" autocomplete="username" required /></label><label>密码<input id="password" type="password" autocomplete="current-password" required /></label><div id="loginError" class="form-error"></div><div class="dialog-actions"><button type="button" class="light" id="cancelLogin">取消</button><button class="primary" type="submit">登录并检查</button></div></form></dialog>
+  <div id="toast" class="toast" role="status"></div>
+  <dialog id="recordDialog"><form id="recordForm"><div class="dialog-title"><div><span class="eyebrow">LOCAL RECORD</span><h2 id="recordDialogTitle">新增记录</h2></div><button type="button" class="icon-button" id="closeRecord">×</button></div><p id="recordDialogCopy" class="dialog-copy">记录会保存到当前本地工作副本。</p><div id="recordFields" class="record-fields"></div><div id="recordError" class="form-error"></div><div class="dialog-actions"><button type="button" class="light" id="cancelRecord">取消</button><button class="primary" id="saveRecord" type="submit">保存记录</button></div></form></dialog>
+  <dialog id="importDialog"><form id="importForm"><div class="dialog-title"><div><span class="eyebrow">LOCAL MIRROR</span><h2>导入本地副本</h2></div><button type="button" class="icon-button" id="closeImport">×</button></div><p class="dialog-copy">将当前选中的远端表导入本地工作副本。当前线上接口确认的是脱敏样例，副本会保留来源和导入批次信息。</p><label class="import-option"><span>导入模式</span><select id="importMode"><option value="local_mirror">本地工作副本（脱敏样例来源）</option></select></label><div id="importError" class="form-error"></div><div class="dialog-actions"><button type="button" class="light" id="cancelImport">取消</button><button class="primary" type="submit">开始导入</button></div></form></dialog>
+  <script src="/live.js"></script>
+</body>
+</html>

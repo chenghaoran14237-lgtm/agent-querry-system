@@ -1,0 +1,12 @@
+{
+  "name": "buildkit-platform",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "e2e:live": "node e2e/live_workflow.mjs",
+    "e2e:live:headed": "E2E_HEADLESS=0 node e2e/live_workflow.mjs"
+  },
+  "devDependencies": {
+    "@playwright/test": "^1.63.0"
+  }
+}

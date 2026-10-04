@@ -1,0 +1,33 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>BuildKit Platform</title>
+  <link rel="stylesheet" href="/styles.css" />
+</head>
+<body>
+  <div class="shell">
+    <aside class="sidebar">
+      <div class="brand"><span class="brand-mark">✦</span><div><b>BuildKit</b><small>AI 管理系统平台</small></div></div>
+      <div class="workspace"><span>内</span><div><b>医疗运营工作区</b><small>正式项目雏形</small></div></div>
+      <nav><button class="nav active" data-view="builder">✦ 生成预览</button><button class="nav" data-view="assets">◈ 数据资产</button><button class="nav" data-view="audit">◌ 审计日志</button></nav>
+      <div class="side-note"><span class="dot"></span>服务端 SQLite 已连接</div>
+    </aside>
+    <main>
+      <header><div>工作区 / <b id="pageTitle">生成预览</b></div><span class="status">本地正式项目 · 4180</span></header>
+      <section id="builder" class="view active">
+        <div class="intro"><div><span class="eyebrow">NATURAL LANGUAGE → APPSPEC</span><h1>用一句话生成管理系统</h1><p>描述业务场景，系统会生成结构化 AppSpec，再通过受控 Gateway 连接数据。</p></div><span class="version">项目雏形 v1.0</span></div>
+        <div class="grid">
+          <section class="card chat"><div class="card-head"><div><span class="eyebrow">BUILDER AGENT</span><h2>告诉我你想管理什么</h2></div><span class="tag">RAG + AppSpec</span></div><div id="messages" class="messages"><div class="message agent">你好，我会把你的描述转换成可校验的 AppSpec，并用服务端持久化数据渲染页面。</div></div><div class="chips"><button data-prompt="做一个床位管理系统，按病区筛选，支持分配和释放床位">床位管理</button><button data-prompt="增加一个患者列表，支持姓名、性别和医保类型筛选">患者列表</button></div><form id="chatForm"><textarea id="prompt" placeholder="例如：做一个床位管理系统，支持按病区筛选和分配床位"></textarea><button>生成 AppSpec ↗</button></form></section>
+          <section class="card preview"><div class="card-head"><div><span class="eyebrow">RUNTIME PREVIEW</span><h2 id="appName">床位调度管理系统</h2></div><button id="refresh" class="light">刷新</button></div><div id="specSummary" class="spec-summary"></div><div class="tabs"><button class="tab active" data-entity="bed">床位列表</button><button class="tab" data-entity="patient">患者列表</button></div><div class="toolbar"><input id="search" placeholder="搜索记录" /><select id="ward"><option value="">全部病区</option><option>内分泌一病区</option><option>内分泌二病区</option><option>糖尿病中心</option><option>代谢病区</option></select><button id="add" class="primary">＋ 新增</button></div><div id="table"></div></section>
+        </div>
+      </section>
+      <section id="assets" class="view"><div class="intro"><div><span class="eyebrow">GOVERNED DATA ASSETS</span><h1>数据资产</h1><p>这里展示 Builder 可发现、可使用的元数据和治理范围。</p></div></div><div id="assetCards" class="asset-grid"></div></section>
+      <section id="audit" class="view"><div class="intro"><div><span class="eyebrow">AUDIT TRAIL</span><h1>审计日志</h1><p>所有服务端写操作都会记录请求号、操作者和变更动作。</p></div></div><div class="card" id="auditTable"></div></section>
+    </main>
+  </div>
+  <dialog id="recordDialog"><form method="dialog" id="recordForm"><h2 id="dialogTitle">新增记录</h2><div id="fields"></div><div class="dialog-actions"><button value="cancel" class="light">取消</button><button value="default" class="primary">保存</button></div></form></dialog>
+  <script src="/app.js"></script>
+</body>
+</html>
